@@ -1,8 +1,16 @@
 const joi = require('joi');
 const { joiPasswordExtendCore } = require('joi-password');
+const { toUserId } = require('../../../models/transfers-schema');
 const joiPassword = joi.extend(joiPasswordExtendCore);
 
 module.exports = {
+  createTransfer: {
+    body: {
+      amount: joi.number().required().label('amount'),
+      toUserId: joi.string().required().label('toUserId'),
+    },
+  },
+
   createUser: {
     body: {
       name: joi.string().min(1).max(100).required().label('Name'),

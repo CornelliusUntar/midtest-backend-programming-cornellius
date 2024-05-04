@@ -94,6 +94,43 @@ async function getUser(id) {
   };
 }
 
+/** create new transfer
+@param {string} id - ID
+@param {string} toAccNumber - Account Number
+@param {string} amount - toUserId
+@returns {boolean}
+*/
+async function createTransfer(id, toUserId, amount) {
+  const transferId =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+  try {
+    const timestamp = Date.now();
+    const toUser = await usersRepository.getUser(toUserId);
+    const fromUser = await usersRepository.getUser(id);
+
+    await usersRepository.createTransfer(
+      transferId,
+      fromUser,
+      toUser,
+      amount,
+      timestamp
+    );
+
+    if (!toUser) {
+      return null; // Handle non-existent sender
+    }
+
+    if (!fromUser) {
+      return null; // Handle non-existent sender
+    }
+
+    return true;
+  } catch (err) {
+    return null;
+  }
+}
+
 /**
  * Create new user
  * @param {string} name - Name
@@ -215,6 +252,7 @@ async function changePassword(userId, password) {
 }
 
 module.exports = {
+  createTransfer,
   getUsers,
   getUser,
   createUser,

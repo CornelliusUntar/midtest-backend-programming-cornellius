@@ -1,4 +1,7 @@
+const { create } = require('lodash');
 const { User } = require('../../../models');
+const { transfer } = require('../../../models');
+const { transferId } = require('../../../models/transfers-schema');
 
 /**
  * Get a list of users
@@ -29,6 +32,22 @@ async function createUser(name, email, password) {
     name,
     email,
     password,
+  });
+}
+
+async function createTransfer(
+  transferId,
+  fromUserId,
+  toUserId,
+  amount,
+  timestamp
+) {
+  return transfer.create({
+    transferId,
+    fromUserId,
+    toUserId,
+    amount,
+    timestamp,
   });
 }
 
@@ -82,6 +101,7 @@ async function changePassword(id, password) {
 }
 
 module.exports = {
+  createTransfer,
   getUsers,
   getUser,
   createUser,

@@ -13,6 +13,14 @@ module.exports = (app) => {
   // Get list of users
   route.get('/', authenticationMiddleware, usersControllers.getUsers);
 
+  // create transfer
+  route.post(
+    '/transfer/:id',
+    authenticationMiddleware,
+    celebrate(usersValidator.createTransfer),
+    usersControllers.createTransfer
+  );
+
   // Create user
   route.post(
     '/',

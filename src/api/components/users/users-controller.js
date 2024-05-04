@@ -8,10 +8,20 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
  * @param {object} next - Express route middlewares
  * @returns {object} Response object or pass an error to the next route
  */
+
 async function getUsers(request, response, next) {
+  const page = parseInt(request.query.page);
+  const limit = parseInt(request.query.limit);
+  const sort = request.query.sort;
+  const search = request.query.search;
   try {
-    const users = await usersService.getUsers();
-    return response.status(200).json(users);
+    const { paginationInfo, results } = await usersService.getUsers(
+      page,
+      limit,
+      search,
+      sort
+    );
+    return response.status(200).json({ paginationInfo, results });
   } catch (error) {
     return next(error);
   }

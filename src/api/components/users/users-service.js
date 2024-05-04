@@ -5,20 +5,73 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
  * Get list of users
  * @returns {Array}
  */
-async function getUsers() {
+
+async function getUsers(page = 1, limit, search = '', sort) {
   const users = await usersRepository.getUsers();
 
-  const results = [];
-  for (let i = 0; i < users.length; i += 1) {
-    const user = users[i];
-    results.push({
-      id: user.id,
-      name: user.name,
-      email: user.email,
+  const filteredUsers = users.filter((user) => {
+    const searchTerm = search.toLowerCase();
+    if (searchTerm.includes(':')) {
+      const [field, term] = searchTerm.split(':');
+      if (field === 'email') {
+        return user.email.toLowerCase().includes(term);
+      } else if (field === 'name') {
+        return user.name.toLowerCase().includes(term);
+      } else {
+        return false;
+      }
+    } else {
+      return (
+        user.name.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm)
+      );
+    }
+  });
+
+  let sortedUsers;
+  if (sort) {
+    const [field, direction] = sort.split(':');
+    sortedUsers = filteredUsers.slice().sort((a, b) => {
+      const compareValue = (field) => {
+        if (field === 'name') return a.name.localeCompare(b.name);
+        if (field === 'email') return a.email.localeCompare(b.email);
+        return 0;
+      };
+      return direction === 'asc'
+        ? compareValue(field)
+        : compareValue(field) * -1;
     });
+  } else {
+    sortedUsers = filteredUsers.slice(); // default to no sorting
   }
 
-  return results;
+  const startIndex = (page - 1) * limit;
+  const endIndex = limit
+    ? Math.min(startIndex + limit, sortedUsers.length)
+    : sortedUsers.length;
+  const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
+
+  const results = paginatedUsers.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  }));
+
+  const totalUsers = sortedUsers.length;
+  const totalPages = Math.ceil(totalUsers / (limit || sortedUsers.length));
+  const hasPreviousPage = page > 1;
+  const hasNextPage = totalPages > page;
+
+  const paginationInfo = {
+    page_number: page,
+    page_size: limit,
+    count: paginatedUsers.length,
+    total_pages: totalPages,
+    has_previous_page: hasPreviousPage,
+    has_next_page: hasNextPage,
+  };
+
+  return { paginationInfo, results };
 }
 
 /**

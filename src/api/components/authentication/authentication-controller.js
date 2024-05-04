@@ -36,7 +36,7 @@ async function login(request, response, next) {
 
     if (remainingAttempts <= 0) {
       logger.info(
-        `Login gagal untuk email: ${email}. attempts: ${remainingAttempts + 5}! anda kena timeout 30 menit! karna gagal 5 kali attempt`
+        `Login gagal untuk email: ${email}. attempts: ${5 - remainingAttempts}, anda kena timeout 30 menit! karna gagal 5 kali attempt`
       );
       await new Promise((resolve) => setTimeout(resolve, 1 * 60 * 1000));
       delete loginAttempts[key];

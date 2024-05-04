@@ -2,7 +2,73 @@ const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
 
 /**
+ * Handle update transfer request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function updateTransfer(request, response, next) {
+  try {
+    const id = request.params.id;
+    const amount = request.body.amount;
+
+    const success = await usersService.updateTransfer(id, amount);
+    if (!success) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to update transfer'
+      );
+    }
+
+    return response.status(200).json({ id });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
  
+Handle get list of users request
+@param {object} request - Express request object
+@param {object} response - Express response object
+@param {object} next - Express route middlewares
+@returns {object} Response object or pass an error to the next route
+*/
+async function getTransfer(request, response, next) {
+  try {
+    const transfer = await usersService.getTransfers();
+    return response.status(200).json(transfer);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
+ * Handle delete user request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function deleteTransfer(request, response, next) {
+  try {
+    const id = request.params.id;
+
+    const success = await usersService.deleteTransfer(id);
+    if (!success) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to delete user'
+      );
+    }
+
+    return response.status(200).json({ id });
+  } catch (error) {
+    return next(error);
+  }
+}
+/**
 Handle create user request
 @param {object} request - Express request object
 @param {object} response - Express response object
@@ -228,6 +294,9 @@ async function changePassword(request, response, next) {
 }
 
 module.exports = {
+  deleteTransfer,
+  updateTransfer,
+  getTransfer,
   createTransfer,
   getUsers,
   getUser,

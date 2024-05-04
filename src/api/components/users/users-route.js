@@ -10,9 +10,21 @@ const route = express.Router();
 module.exports = (app) => {
   app.use('/users', route);
 
+  // Delete transfer
+  route.delete(
+    '/transfer/:id',
+    authenticationMiddleware,
+    usersControllers.deleteTransfer
+  );
   // Get list of users
   route.get('/', authenticationMiddleware, usersControllers.getUsers);
 
+  // get list of transfer
+  route.get(
+    '/transfer',
+    authenticationMiddleware,
+    usersControllers.getTransfer
+  );
   // create transfer
   route.post(
     '/transfer/:id',
@@ -20,7 +32,13 @@ module.exports = (app) => {
     celebrate(usersValidator.createTransfer),
     usersControllers.createTransfer
   );
-
+  // Update transfer
+  route.put(
+    '/transfer/:id',
+    authenticationMiddleware,
+    celebrate(usersValidator.updateTransfer),
+    usersControllers.updateTransfer
+  );
   // Create user
   route.post(
     '/',

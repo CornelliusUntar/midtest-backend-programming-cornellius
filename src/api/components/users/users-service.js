@@ -94,6 +94,29 @@ async function getUser(id) {
   };
 }
 
+/**
+ * Get list of transfers
+ * @returns {Array}
+ */
+async function getTransfers() {
+  const transfers = await usersRepository.getTransfer(); // Mengambil daftar transfer dari repository, disesuaikan dengan implementasi Anda
+
+  const results = [];
+  for (let i = 0; i < transfers.length; i += 1) {
+    const transfer = transfers[i];
+    results.push({
+      id: transfer,
+      transferId: transfer.transferId,
+      fromUserId: transfer.fromUserId,
+      toUserId: transfer.toUserId,
+      amount: transfer.amount,
+      timestamp: transfer.timestamp,
+    });
+  }
+
+  return results;
+}
+
 /** create new transfer
 @param {string} id - ID
 @param {string} toAccNumber - Account Number
@@ -168,6 +191,50 @@ async function updateUser(id, name, email) {
 
   try {
     await usersRepository.updateUser(id, name, email);
+  } catch (err) {
+    return null;
+  }
+
+  return true;
+}
+
+/**
+ * Update existing transfer
+ * @param {string} id - User ID
+ * @param {string} transfer - transfer
+ * @returns {boolean}
+ */
+async function updateTransfer(id, amount) {
+  const transfer = await usersRepository.getTransfer1(id);
+
+  // transfer not found
+  if (!transfer) {
+    return null;
+  }
+
+  try {
+    await usersRepository.updateTransfer(id, amount);
+  } catch (err) {
+    return null;
+  }
+
+  return true;
+}
+/**
+ * Delete transfer
+ * @param {string} id - User ID
+ * @returns {boolean}
+ */
+async function deleteTransfer(id) {
+  const transfer = await usersRepository.getTransfer1(id);
+
+  // User not found
+  if (!transfer) {
+    return null;
+  }
+
+  try {
+    await usersRepository.deleteTransfer(id);
   } catch (err) {
     return null;
   }
@@ -252,6 +319,9 @@ async function changePassword(userId, password) {
 }
 
 module.exports = {
+  deleteTransfer,
+  updateTransfer,
+  getTransfers,
   createTransfer,
   getUsers,
   getUser,
